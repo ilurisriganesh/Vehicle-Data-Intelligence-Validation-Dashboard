@@ -194,6 +194,54 @@ SELECT brand, model, COUNT(*) FROM vehicle_data GROUP BY brand, model HAVING COU
 * Highlight vehicles with invalid data.
 * Build dashboards for SUV counts, fuel type distribution, and mileage comparisons.
 
+## 8. Power BI KPIs & Dashboard
+
+**KPIs (DAX Calculations):**
+
+```DAX
+-- Clean Price Column
+Clean Price = IF(TRIM(vehicle_data[price_lakh]) = "NULL" || TRIM(vehicle_data[price_lakh]) = "", BLANK(), VALUE(TRIM(vehicle_data[price_lakh])))
+
+-- Average Vehicle Price
+Avg Vehicle Price = AVERAGE(vehicle_data[Clean Price])
+
+-- Total Vehicles
+Total Vehicles = COUNT(vehicle_data[vehicle_id])
+
+-- Total Errors
+Total Errors = COUNTROWS(FILTER('data validation table', 'data validation table'[price_check]<>"OK" || 'data validation table'[mileage_check]<>"OK" || 'data validation table'[fuel_check]<>"OK"))
+
+-- Error Percentage
+Error % = DIVIDE([Total Errors], COUNTROWS('data validation table'),0)
+
+-- Data Status (3-level)
+Data Status = IF([Error %]>0.3, "🔴 Critical", IF([Error %]>0.1,"🟡 Needs Attention","🟢 Clean Data"))
+```
+
+**Dashboard Visuals:**
+
+* Top Row: Avg Price, Total Vehicles, Total Errors, Error %
+* Middle Row: Vehicle Type Bar Chart, Fuel Type Pie Chart, Avg Price by Brand Bar Chart
+* Bottom Row: Validation Table (Conditional Formatting: Green for OK, Red for Invalid/Missing)
+* Interactive Slicers: Vehicle Type, Brand, Fuel Type
+* Optional Tooltip page with mini KPIs and conditional icons ✅ / ❌
+* Dark/vehicle-themed background with urban road wallpaper for aesthetics
+
+## 9. Errors Faced & Fixes 
+
+| Error                                           | Cause                                 | Solution                                                        |
+| ----------------------------------------------- | ------------------------------------- | --------------------------------------------------------------- |
+| Cannot convert 'NULL' to number                 | Column had text "NULL"                | DAX Clean Price column using IF + VALUE + TRIM                  |
+| AVERAGE function error                          | Column treated as text                | Converted to numeric via Clean Price                            |
+| Cannot find table 'vehicle_data_validation'     | Table/view not loaded in Power BI     | Reconnect or use DAX-based calculation                          |
+| Status KPI showing Needs Attention unexpectedly | Error % threshold vs display mismatch | Adjusted threshold / verified formatting                        |
+| PostgreSQL: SHOW FULL TABLES                    | MySQL command used                    | Replaced with `SELECT table_name FROM information_schema.views` |
+
+💡 Key Insight: Data cleaning, type consistency, and validation are critical in real-world BI dashboards.
+
+## Mistakes Solved
+Power BI DAX columns created to handle text "NULL" and numeric conversion errors.
+
 ---
 
 ## 📊 Key KPIs
