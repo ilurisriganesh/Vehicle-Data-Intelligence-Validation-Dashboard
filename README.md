@@ -1,72 +1,71 @@
 # 🚗 Vehicle Data Intelligence & Validation Dashboard
 
 ## 📌 Project Overview
-This project focuses on building a **data validation and business intelligence system** using SQL and Power BI. It identifies data quality issues, performs transformations, and delivers actionable insights through an interactive dashboard.
+
+This project implements an end-to-end **data validation and business intelligence pipeline** using SQL and Power BI. It focuses on identifying data quality issues, performing data transformations, and delivering actionable insights through an interactive dashboard.
 
 ![Dashboard](https://github.com/ilurisriganesh/Vehicle-Data-Intelligence-Validation-Dashboard/blob/main/Vehicle%20data%20dashboard%20with%20city%20view.png)
 
 ---
 
 ## 🛠️ Tech Stack
-- PostgreSQL (SQL)
-- Power BI
-- DAX
-- Excel/CSV
+
+* **Database:** PostgreSQL / MySQL
+* **Visualization:** Power BI
+* **Languages:** SQL, DAX
+* **Tools:** Excel (CSV), GitHub
 
 ---
 
-## 🧱 Project Workflow
+## 🧱 Architecture & Workflow
 
-### 🔹 Step 1: Data Creation (SQL)
-- Created vehicle dataset with attributes like:
-  - brand, model, price, mileage, fuel type
+### 🔹 1. Data Ingestion & Schema Design
 
-### 🔹 Step 2: Data Validation (SQL View)
-- Built validation logic using CASE statements
+* Designed a structured relational schema for vehicle attributes
+* Created and populated tables with multi-dimensional data (brand, price, mileage, fuel type, etc.)
 
-### 🔹 Step 3: Data Cleaning (Power BI + DAX)
-- Converted text values like 'NULL' to blanks
-- Created clean numeric columns
+### 🔹 2. Data Validation Layer (SQL)
 
-### 🔹 Step 4: KPI Development
-- Avg Vehicle Price
-- Total Vehicles
-- Total Errors
-- Error %
+* Implemented validation logic using `CASE` statements
+* Built a reusable **validation view** to flag data quality issues:
 
-### 🔹 Step 5: Dashboard Creation
-- Interactive visuals
-- Data quality monitoring
-- Business insights
-  
+  * Invalid mileage
+  * Negative pricing
+  * Missing fuel types
+
+### 🔹 3. Data Cleaning & Transformation (Power BI)
+
+* Addressed data type inconsistencies (Text → Numeric)
+* Handled invalid entries such as `"NULL"` and blank values
+* Created derived columns using DAX for clean analytical modeling
+
+### 🔹 4. KPI Engineering
+
+* Developed business-critical KPIs:
+
+  * Average Vehicle Price
+  * Total Vehicles
+  * Total Errors
+  * Error Percentage
+  * Data Quality Status
+
+### 🔹 5. Visualization & Dashboarding
+
+* Built an interactive dashboard for:
+
+  * Data quality monitoring
+  * Business insights generation
+  * Stakeholder-friendly reporting
+
 ---
-# Vehicle-Data-Intelligence-Validation-Dashboard
 
-"Focused on SQL-based vehicle data validation and analysis"
+## 🗄️ Database Implementation
 
-## Project Overview
-
-**Project Title**: Vehicle-Data-Intelligence-Validation-Dashboard
-**Level**: Intermediate
-This project demonstrates the implementation of a vehicle data intelligence and validation dashboard using MySQL. It includes creating and managing vehicle data tables, performing CRUD operations, data validation, and generating business insights. The goal is to showcase skills in database design, validation, and analysis.
-
-## Objectives
-
-1. **Set up Vehicle Data Database**: Create and populate the database with tables for vehicle details.
-2. **Data Validation**: Identify and fix issues such as invalid mileage, negative price, and missing fuel type.
-3. **CRUD Operations**: Perform Create, Read, Update, and Delete operations on vehicle data.
-4. **Business Insights**: Generate insights like average price by brand or vehicle type, fuel type distribution, and top mileage vehicles.
-5. **Error Summary Dashboard**: Build a validation report to quickly identify data issues.
-
-## Project Structure
-
-### 1. Database Setup
+### 📍 Database & Table Creation
 
 ```sql
--- STEP 1: Create Database
 CREATE DATABASE vehicle_project;
 
--- STEP 2: Create Table
 CREATE TABLE vehicle_data (
     vehicle_id INT PRIMARY KEY,
     brand VARCHAR(50),
@@ -80,8 +79,11 @@ CREATE TABLE vehicle_data (
     vehicle_type VARCHAR(20),
     country VARCHAR(50)
 );
+```
 
--- STEP 3: Insert Data
+### 📍 Sample Data Insertion
+
+```sql
 INSERT INTO vehicle_data VALUES
 (1,'Toyota','Fortuner',2022,'Diesel',2755,10.5,35.0,'Automatic','SUV','India'),
 (2,'Hyundai','i20',2021,'Petrol',1197,20.0,8.5,'Manual','Hatchback','India'),
@@ -98,168 +100,151 @@ INSERT INTO vehicle_data VALUES
 (13,'Honda','Amaze',2020,'Diesel',1498,24.7,8.0,'Manual','Sedan','India'),
 (14,'FakeBrand','X',2022,'Petrol',1500,150.0,-5.0,'Manual','SUV','India'),
 (15,'Unknown','Y',2021,NULL,1200,NULL,10.0,'Manual','Sedan','India');
-
--- STEP 4: View Data
-SELECT * FROM vehicle_data;
 ```
 
-### 2. Basic Queries
+---
 
-```sql
--- Select all SUVs
-SELECT * FROM vehicle_data WHERE vehicle_type = 'SUV';
+## 🔍 Data Validation Layer
 
--- Average price by brand
-SELECT brand, AVG(price_lakh) AS avg_price FROM vehicle_data GROUP BY brand;
-
--- Top 5 expensive vehicles
-SELECT * FROM vehicle_data ORDER BY price_lakh DESC LIMIT 5;
-```
-
-### 3. Data Validation Queries
-
-```sql
--- Invalid mileage
-SELECT * FROM vehicle_data WHERE mileage_kmpl > 50 OR mileage_kmpl IS NULL;
-
--- Negative price
-SELECT * FROM vehicle_data WHERE price_lakh < 0;
-
--- Missing fuel type
-SELECT * FROM vehicle_data WHERE fuel_type IS NULL;
-```
-
-### 4. Validation View & Error Summary
+### 📍 Validation View
 
 ```sql
 CREATE VIEW vehicle_data_validation AS
 SELECT
     vehicle_id, brand, model,
-    CASE WHEN mileage_kmpl IS NULL OR mileage_kmpl > 50 THEN 'Invalid Mileage' ELSE 'OK' END AS mileage_check,
-    CASE WHEN price_lakh < 0 THEN 'Invalid Price' ELSE 'OK' END AS price_check,
-    CASE WHEN fuel_type IS NULL THEN 'Missing Fuel Type' ELSE 'OK' END AS fuel_check
+    CASE 
+        WHEN mileage_kmpl IS NULL OR mileage_kmpl > 50 THEN 'Invalid Mileage' 
+        ELSE 'OK' 
+    END AS mileage_check,
+    CASE 
+        WHEN price_lakh < 0 THEN 'Invalid Price' 
+        ELSE 'OK' 
+    END AS price_check,
+    CASE 
+        WHEN fuel_type IS NULL THEN 'Missing Fuel Type' 
+        ELSE 'OK' 
+    END AS fuel_check
 FROM vehicle_data;
+```
 
-SELECT * FROM vehicle_data_validation;
+### 📍 Error Aggregation
 
--- Error summary
+```sql
 SELECT mileage_check, price_check, fuel_check, COUNT(*) AS total_issues
 FROM vehicle_data_validation
 GROUP BY mileage_check, price_check, fuel_check;
 ```
 
-### 5. Cleaning Data
+---
+
+## 🧹 Data Cleaning (SQL Layer)
 
 ```sql
--- Fix negative price
-UPDATE vehicle_data SET price_lakh = NULL WHERE price_lakh < 0;
+UPDATE vehicle_data 
+SET price_lakh = NULL 
+WHERE price_lakh < 0;
 
--- Fix invalid mileage
-UPDATE vehicle_data SET mileage_kmpl = NULL WHERE mileage_kmpl > 50;
+UPDATE vehicle_data 
+SET mileage_kmpl = NULL 
+WHERE mileage_kmpl > 50;
 ```
 
-### 6. Business Insights
+---
 
-```sql
--- Average price by vehicle type
-SELECT vehicle_type, AVG(price_lakh) AS avg_price FROM vehicle_data GROUP BY vehicle_type;
+## 📊 Power BI – Data Modeling & KPIs
 
--- Fuel type distribution
-SELECT fuel_type, COUNT(*) FROM vehicle_data GROUP BY fuel_type;
-
--- Best mileage cars
-SELECT brand, model, mileage_kmpl FROM vehicle_data ORDER BY mileage_kmpl DESC;
-
--- Count by vehicle type
-SELECT vehicle_type, COUNT(*) AS total FROM vehicle_data GROUP BY vehicle_type;
-```
-
-### 7. Duplicate Detection
-
-```sql
-SELECT brand, model, COUNT(*) FROM vehicle_data GROUP BY brand, model HAVING COUNT(*) > 1;
-```
-
-## Mistakes Solved
-
-1. Invalid mileage values > 50 were set to NULL.
-2. Negative price values were corrected to NULL.
-3. Missing fuel types were identified.
-4. Validation dashboard created to track data issues.
-
-## Power BI Insights
-
-* Connect MySQL vehicle database to Power BI.
-* Visualize average price by brand and vehicle type.
-* Highlight vehicles with invalid data.
-* Build dashboards for SUV counts, fuel type distribution, and mileage comparisons.
-
-## 8. Power BI KPIs & Dashboard
-
-**KPIs (DAX Calculations):**
+### 📍 Data Cleaning (DAX)
 
 ```DAX
--- Clean Price Column
-Clean Price = IF(TRIM(vehicle_data[price_lakh]) = "NULL" || TRIM(vehicle_data[price_lakh]) = "", BLANK(), VALUE(TRIM(vehicle_data[price_lakh])))
-
--- Average Vehicle Price
-Avg Vehicle Price = AVERAGE(vehicle_data[Clean Price])
-
--- Total Vehicles
-Total Vehicles = COUNT(vehicle_data[vehicle_id])
-
--- Total Errors
-Total Errors = COUNTROWS(FILTER('data validation table', 'data validation table'[price_check]<>"OK" || 'data validation table'[mileage_check]<>"OK" || 'data validation table'[fuel_check]<>"OK"))
-
--- Error Percentage
-Error % = DIVIDE([Total Errors], COUNTROWS('data validation table'),0)
-
--- Data Status (3-level)
-Data Status = IF([Error %]>0.3, "🔴 Critical", IF([Error %]>0.1,"🟡 Needs Attention","🟢 Clean Data"))
+Clean Price = 
+VAR val = TRIM(vehicle_data[price_lakh])
+RETURN
+IF(
+    val = "NULL" || val = "",
+    BLANK(),
+    VALUE(val)
+)
 ```
 
-**Dashboard Visuals:**
+### 📍 KPI Measures
 
-* Top Row: Avg Price, Total Vehicles, Total Errors, Error %
-* Middle Row: Vehicle Type Bar Chart, Fuel Type Pie Chart, Avg Price by Brand Bar Chart
-* Bottom Row: Validation Table (Conditional Formatting: Green for OK, Red for Invalid/Missing)
-* Interactive Slicers: Vehicle Type, Brand, Fuel Type
-* Optional Tooltip page with mini KPIs and conditional icons ✅ / ❌
-* Dark/vehicle-themed background with urban road wallpaper for aesthetics
+```DAX
+Avg Vehicle Price = AVERAGE(vehicle_data[Clean Price])
 
-## 9. Errors Faced & Fixes 
+Total Vehicles = COUNT(vehicle_data[vehicle_id])
 
-| Error                                           | Cause                                 | Solution                                                        |
-| ----------------------------------------------- | ------------------------------------- | --------------------------------------------------------------- |
-| Cannot convert 'NULL' to number                 | Column had text "NULL"                | DAX Clean Price column using IF + VALUE + TRIM                  |
-| AVERAGE function error                          | Column treated as text                | Converted to numeric via Clean Price                            |
-| Cannot find table 'vehicle_data_validation'     | Table/view not loaded in Power BI     | Reconnect or use DAX-based calculation                          |
-| Status KPI showing Needs Attention unexpectedly | Error % threshold vs display mismatch | Adjusted threshold / verified formatting                        |
-| PostgreSQL: SHOW FULL TABLES                    | MySQL command used                    | Replaced with `SELECT table_name FROM information_schema.views` |
+Total Errors = 
+COUNTROWS(
+    FILTER(
+        'data validation table',
+        'data validation table'[price_check] <> "OK" ||
+        'data validation table'[mileage_check] <> "OK" ||
+        'data validation table'[fuel_check] <> "OK"
+    )
+)
 
-💡 Key Insight: Data cleaning, type consistency, and validation are critical in real-world BI dashboards.
+Error % = DIVIDE([Total Errors], COUNTROWS('data validation table'), 0)
 
-## Mistakes Solved
-Power BI DAX columns created to handle text "NULL" and numeric conversion errors.
-
----
-
-## 📊 Key KPIs
-- Average Vehicle Price
-- Total Vehicles
-- Error Count
-- Error %
-- Data Status (Clean / Needs Attention / Critical)
+Data Status = 
+IF(
+    [Error %] > 0.3, "🔴 Critical",
+    IF(
+        [Error %] > 0.1, "🟡 Needs Attention",
+        "🟢 Clean Data"
+    )
+)
+```
 
 ---
 
-## 📈 Insights
-- Identified data inconsistencies
-- Highlighted error-prone records
-- Enabled decision-making using clean data
+## 📈 Dashboard Design
+
+### 🔹 KPI Layer
+
+* Average Vehicle Price
+* Total Vehicles
+* Total Errors
+* Error Percentage
+* Data Quality Status
+
+### 🔹 Visualizations
+
+* Vehicle Type Distribution (Bar Chart)
+* Fuel Type Distribution (Pie Chart)
+* Average Price by Brand
+* Data Validation Table with Conditional Formatting
+
+### 🔹 Features
+
+* Interactive slicers (Vehicle Type, Brand, Fuel Type)
+* Conditional formatting (Error highlighting)
+* Clean automotive-themed UI
+
+---
+
+## ⚠️ Errors Encountered & Resolutions
+
+| Issue                           | Root Cause                     | Resolution                                  |
+| ------------------------------- | ------------------------------ | ------------------------------------------- |
+| Cannot convert 'NULL' to number | Text-based "NULL" values       | DAX cleaning using `TRIM + VALUE + BLANK()` |
+| AVERAGE function failure        | Non-numeric column type        | Created numeric derived column              |
+| Table not found                 | Incorrect table/view reference | Verified schema and reloaded dataset        |
+| Incorrect KPI status            | Threshold mismatch             | Adjusted logic and validated % format       |
+| SQL syntax error                | MySQL vs PostgreSQL mismatch   | Used `information_schema` queries           |
+
+---
+
+## 💡 Key Learnings
+
+* Importance of **data type consistency in analytics pipelines**
+* Real-world handling of **dirty and inconsistent datasets**
+* Designing scalable **data validation frameworks**
+* Building **business-ready dashboards with actionable insights**
 
 ---
 
 ## 🚀 Conclusion
-This project demonstrates **end-to-end data operations**, including SQL processing, data validation, and Power BI reporting.
 
+This project demonstrates a production-style workflow combining **data engineering, validation, and business intelligence**. It highlights the critical role of clean data in enabling accurate analytics and decision-making.
+
+---
